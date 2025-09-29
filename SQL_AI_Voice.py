@@ -123,7 +123,7 @@ def run_sql_query(sql_query, conn, cursor):
 
 # -------------------- UI ------------------------
 
-st.title("🧠 Natural Language SQL Assistant with Voice Input")
+st.title("🧠 Natural Language SQL Assistant")
 
 if st.button("📚 SHOW Available Schemas"):
     schemas = get_all_schema(cursor)
