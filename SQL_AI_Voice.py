@@ -9,16 +9,22 @@ import threading
 from dotenv import load_dotenv
 import os
 load_dotenv()
+host_name = os.getenv("HOST_NAME")
+port_name = int(os.getenv("PORT_NAME", 33094))
+user_name = os.getenv("USER_NAME")
+password = os.getenv("PASSWORD")
+API = os.getenv("OPENAI_API_KEY")
 from openai import api_key
 from pyexpat.errors import messages
 import os
-OPEN_API_KEY = os.getenv("OPEN_API_KEY")
-openai.api_key = OPEN_API_KEY
-client = openai.OpenAI(api_key="OPEN_API_KEY")
+
+client = openai.OpenAI(api_key=API)
 conn = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="Echt@1234"
+    host=host_name,
+    port=port_name,
+    user=user_name,
+    password=password
+
 )
 cursor = conn.cursor()
 
