@@ -30,40 +30,40 @@ conn = mysql.connector.connect(
 cursor = conn.cursor()
 
 # 🔁 Try to initialize text-to-speech if running locally
-try:
-    import pyttsx3
-    engine = pyttsx3.init()
-    TTS_ENABLED = True
-except Exception as e:
-    TTS_ENABLED = False
-    st.warning("🔇 Text-to-speech not supported in this environment.")
+# try:
+#     import pyttsx3
+#     engine = pyttsx3.init()
+#     TTS_ENABLED = True
+# except Exception as e:
+#     TTS_ENABLED = False
+#     st.warning("🔇 Text-to-speech not supported in this environment.")
 
 
-def speak(text):
-    if not TTS_ENABLED:
-        return
-    def run():
-        engine.say(text)
-        engine.runAndWait()
-    t = threading.Thread(target=run)
-    t.start()
+# def speak(text):
+#     if not TTS_ENABLED:
+#         return
+#     def run():
+#         engine.say(text)
+#         engine.runAndWait()
+#     t = threading.Thread(target=run)
+#     t.start()
 
 
-def recognize_speech():
-    recognizer = sr.Recognizer()
-    with sr.Microphone() as source:
-        st.write("🎙️ Listening... Please speak!")
-        recognizer.adjust_for_ambient_noise(source)
-        audio = recognizer.listen(source)
-        try:
-            speech_text = recognizer.recognize_google(audio)
-            return speech_text
-        except sr.UnknownValueError:
-            st.error("Sorry, I couldn't understand the audio.")
-            return ""
-        except sr.RequestError:
-            st.error("There was an issue with the speech recognition service.")
-            return ""
+# def recognize_speech():
+#     recognizer = sr.Recognizer()
+#     with sr.Microphone() as source:
+#         st.write("🎙️ Listening... Please speak!")
+#         recognizer.adjust_for_ambient_noise(source)
+#         audio = recognizer.listen(source)
+#         try:
+#             speech_text = recognizer.recognize_google(audio)
+#             return speech_text
+#         except sr.UnknownValueError:
+#             st.error("Sorry, I couldn't understand the audio.")
+#             return ""
+#         except sr.RequestError:
+#             st.error("There was an issue with the speech recognition service.")
+#             return ""
 
 
 def get_all_schema(cursor):
@@ -154,11 +154,11 @@ if db_name:
 
             prompt = st.text_area("🧾 Enter the SQL Query in natural language:")
 
-            if st.button("🎤 Speak SQL Query"):
-                speech_text = recognize_speech()
-                if speech_text:
-                    st.text_area("Recognized Query", value=speech_text)
-                    prompt = speech_text
+            # if st.button("🎤 Speak SQL Query"):
+            #     speech_text = recognize_speech()
+            #     if speech_text:
+            #         st.text_area("Recognized Query", value=speech_text)
+            #         prompt = speech_text
 
             if prompt:
                 with st.spinner("🤖 Generating SQL Query..."):
