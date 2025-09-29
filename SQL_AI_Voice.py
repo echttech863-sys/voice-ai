@@ -3,7 +3,6 @@ import pandas as pd
 import openai
 import mysql.connector
 import speech_recognition as sr
-import pyttsx3
 import threading
 from dotenv import load_dotenv
 import os
@@ -18,10 +17,10 @@ user_name = os.getenv("USER_NAME")
 password = os.getenv("PASSWORD")
 api_key = os.getenv("OPENAI_API_KEY")
 
-# ✅ Initialize OpenAI client (correct usage)
+# ✅ Initialize OpenAI client
 openai.api_key = api_key
 
-# ✅ Connect to MySQL database
+# ✅ Connect to MySQL
 conn = mysql.connector.connect(
     host=host_name,
     port=port_name,
@@ -30,13 +29,20 @@ conn = mysql.connector.connect(
 )
 cursor = conn.cursor()
 
-# ✅ Initialize Text-to-Speech engine
-engine = pyttsx3.init()
+# 🔁 Try to initialize text-to-speech if running locally
+try:
+    import pyttsx3
+    engine = pyttsx3.init()
+    TTS_ENABLED = True
+except Exception as e:
+    TTS_ENABLED = False
+    st.warning("🔇 Text-to-speech not supported in this environment.")
 
 
 def speak(text):
+    if not TTS_ENABLED:
+        return
     def run():
-        engine = pyttsx3.init()
         engine.say(text)
         engine.runAndWait()
     t = threading.Thread(target=run)
@@ -162,10 +168,4 @@ if db_name:
                 with st.spinner("🚀 Running SQL Query..."):
                     result, columns = run_sql_query(sql, conn, cursor)
 
-                if isinstance(result, str):
-                    st.error(result)
-                else:
-                    st.success("✅ Query Executed")
-                    df = pd.DataFrame(result, columns=columns)
-                    st.dataframe(df)
-                    speak(f"The query executed successfully and returned {len(result)} rows.")
+                i
