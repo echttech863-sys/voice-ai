@@ -1,16 +1,20 @@
 import streamlit as st
 import pandas as pd
 import openai
+from openai import OpenAI
 import mysql.connector
 import speech_recognition as sr
 import pyttsx3
 import threading
+from dotenv import load_dotenv
+import os
+load_dotenv()
 from openai import api_key
 from pyexpat.errors import messages
-
-
-API = "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"
-client = openai.OpenAI(api_key=API)
+import os
+OPEN_API_KEY = os.getenv("OPEN_API_KEY")
+openai.api_key = OPEN_API_KEY
+client = openai.OpenAI(api_key="OPEN_API_KEY")
 conn = mysql.connector.connect(
     host="localhost",
     user="root",
@@ -84,7 +88,7 @@ def get_sql_from_prompt(prompt, schema_text):
         {"role": "user", "content": prompt}
     ]
     response = client.chat.completions.create(
-        model="gpt-5-nano-2025-08-07",
+        model="gpt-4o",
         messages=messages
     )
     sql_query = response.choices[0].message.content.strip()
@@ -99,6 +103,8 @@ def run_sql_query(sql_query, conn, cursor):
     except Exception as e:
         return f"Error Executing Query: {e}", []
 
+
+#-----------------------UI----------------------------
 
 st.title("Natural Language SQL Assistant with Voice Input")
 
