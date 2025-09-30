@@ -22,7 +22,7 @@ openai.api_key = API
 
 # Initialize OpenAI API key for the classic SDK
 
-client = OpenAI()
+client = OpenAI(api_key=API)
 
 # Connect to MySQL
 try:
