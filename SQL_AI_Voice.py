@@ -104,7 +104,7 @@ def get_sql_from_prompt(prompt, schema_text):
         {"role": "user", "content": prompt}
     ]
     response = openai.ChatCompletion.create(
-        model="gpt-4o",
+        model="gpt-5-nano-2025-08-07",
         messages=messages
     )
     sql_query = response.choices[0].message["content"].strip()
