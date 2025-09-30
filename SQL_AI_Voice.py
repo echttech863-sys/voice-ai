@@ -5,7 +5,7 @@ import mysql.connector
 from openai import api_key
 from pyexpat.errors import messages
 
-API = "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"
+
 client = openai.OpenAI(api_key=API)
 conn = mysql.connector.connect(
     host ="localhost",
