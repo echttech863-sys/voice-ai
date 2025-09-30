@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import openai
+from openai import OpenAI
 import mysql.connector
 import speech_recognition as sr
 import threading
@@ -12,32 +13,38 @@ load_dotenv()
 
 # Database and API credentials
 host_name = os.getenv("HOST_NAME")
-port_name = int(os.getenv("PORT_NAME", 33094))
+port_name = int(os.getenv("PORT_NAME", 3306))  # default MySQL port 3306
 user_name = os.getenv("USER_NAME")
 password = os.getenv("PASSWORD")
-api_key = os.getenv("OPENAI_API_KEY")
+API=os.getenv("OPENAI_API_KEY")
+openai.api_key = API
 
-# ✅ Initialize OpenAI client
-openai.api_key = api_key
 
-# ✅ Connect to MySQL
-conn = mysql.connector.connect(
-    host=host_name,
-    port=port_name,
-    user=user_name,
-    password=password
-)
-cursor = conn.cursor()
+# Initialize OpenAI API key for the classic SDK
 
-# 🔁 Try to initialize text-to-speech if running locally
+client = OpenAI()
+
+# Connect to MySQL
+try:
+    conn = mysql.connector.connect(
+        host=host_name,
+        port=port_name,
+        user=user_name,
+        password=password
+    )
+    cursor = conn.cursor()
+except mysql.connector.Error as e:
+    st.error(f"Error connecting to MySQL: {e}")
+    st.stop()
+
+# # Optional: Text to speech initialization commented out
 # try:
 #     import pyttsx3
 #     engine = pyttsx3.init()
 #     TTS_ENABLED = True
-# except Exception as e:
+# except Exception:
 #     TTS_ENABLED = False
 #     st.warning("🔇 Text-to-speech not supported in this environment.")
-
 
 # def speak(text):
 #     if not TTS_ENABLED:
@@ -47,7 +54,6 @@ cursor = conn.cursor()
 #         engine.runAndWait()
 #     t = threading.Thread(target=run)
 #     t.start()
-
 
 # def recognize_speech():
 #     recognizer = sr.Recognizer()
@@ -65,11 +71,9 @@ cursor = conn.cursor()
 #             st.error("There was an issue with the speech recognition service.")
 #             return ""
 
-
 def get_all_schema(cursor):
     cursor.execute("SHOW DATABASES;")
     return [row[0] for row in cursor.fetchall()]
-
 
 def get_schema(cursor, db_name):
     query = f"""
@@ -96,20 +100,18 @@ def get_schema(cursor, db_name):
         schema_text += "\n"
     return schema_text.strip()
 
-
 def get_sql_from_prompt(prompt, schema_text):
     messages = [
         {"role": "system", "content": "Generate only SQL query."},
         {"role": "system", "content": f"Database Schema:\n\n{schema_text}"},
         {"role": "user", "content": prompt}
     ]
-    response = openai.ChatCompletion.create(
-        model="gpt-4o",
+    response = client.chat.completions.create( 
+        model="gpt-4", 
         messages=messages
     )
-    sql_query = response.choices[0].message["content"].strip()
+    sql_query = response.choices[0].message.content.strip()
     return sql_query
-
 
 def run_sql_query(sql_query, conn, cursor):
     try:
@@ -120,9 +122,7 @@ def run_sql_query(sql_query, conn, cursor):
     except Exception as e:
         return f"Error Executing Query: {e}", []
 
-
 # -------------------- UI ------------------------
-
 st.title("🧠 Natural Language SQL Assistant")
 
 if st.button("📚 SHOW Available Schemas"):
@@ -168,4 +168,9 @@ if db_name:
                 with st.spinner("🚀 Running SQL Query..."):
                     result, columns = run_sql_query(sql, conn, cursor)
 
-                i
+                if isinstance(result, str):
+                    st.error(result)
+                else:
+                    st.success("Query Executed")
+                    df = pd.DataFrame(result, columns=columns)
+                    st.dataframe(df)
