@@ -12,11 +12,16 @@ import os
 load_dotenv()
 
 # Database and API credentials
-host_name = os.getenv("HOST_NAME")
-port_name = int(os.getenv("PORT_NAME", 3306))  # default MySQL port 3306
-user_name = os.getenv("USER_NAME")
-password = os.getenv("PASSWORD")
-API=os.getenv("OPENAI_API_KEY")
+# host_name = os.getenv("HOST_NAME")
+host_name = st.secrets["HOST_NAME"]
+# port_name = int(os.getenv("PORT_NAME", 3306))
+port_name = st.secrets["PORT_NAME"]
+# user_name = os.getenv("USER_NAME")
+user_name = st.secrets["USER_NAME"]
+# password = os.getenv("PASSWORD")
+password = st.secrets["PASSWORD"]
+# API=os.getenv("OPENAI_API_KEY")
+API=st.secrets["OPENAI_API_KEY"] 
 openai.api_key = API
 
 
